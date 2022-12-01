@@ -339,13 +339,13 @@ class Acf_Block_Ui_Admin
 				$acf_block_fields = get_fields($acf_block->ID);
 
 				// Create a directory for each ACF Block
-				$acf_block_dir = $acf_blocks_dir . '/' . $acf_block_fields['acf_ui_block_slug'];
+				$acf_block_dir = $acf_blocks_dir . '/' . $acf_block_fields['acf_ui_block_slug'] . '-' . $acf_block->ID;
 				if (!file_exists($acf_block_dir)) {
 					mkdir($acf_block_dir, 0777, true);
 				}
 
 				// Create a php file for each ACF Block
-				$acf_block_file = $acf_block_dir . '/' . $acf_block_fields['acf_ui_block_slug'] . '.php';
+				$acf_block_file = $acf_block_dir . '/' . $acf_block_fields['acf_ui_block_slug'] . '-' . $acf_block->ID . '.php';
 				if (!file_exists($acf_block_file)) {
 					// Get content from template file
 					$acf_block_template = file_get_contents(plugin_dir_path(__FILE__) . 'data/block-template.php');
@@ -376,5 +376,59 @@ class Acf_Block_Ui_Admin
 				));
 			}
 		}
+	}
+
+
+	/**
+	 * Delete ACF Block if acf_blocks post type is deleted from trash 
+	 * 
+	 * @since 1.0.0
+	 */
+	public function delete_acf_block($post_id)
+	{
+		// Get post type
+		$post_type = get_post_type($post_id);
+
+		// Check if post type is acf_blocks
+		if ($post_type == 'acf_blocks') {
+			// Get ACF Block fields
+			$acf_block_fields = get_fields($post_id);
+
+			// Get ACF Block directory
+			$acf_block_dir = WP_CONTENT_DIR . '/acf-ui-blocks/' . $acf_block_fields['acf_ui_block_slug'];
+
+			// Delete ACF Block directory
+			if (file_exists($acf_block_dir)) {
+				$this->delete_directory($acf_block_dir);
+			}
+		}
+	}
+
+	/**
+	 * Delete directory and all files inside
+	 * 
+	 * @since 1.0.0
+	 */
+	public function delete_directory($dir)
+	{
+		if (!file_exists($dir)) {
+			return true;
+		}
+
+		if (!is_dir($dir)) {
+			return unlink($dir);
+		}
+
+		foreach (scandir($dir) as $item) {
+			if ($item == '.' || $item == '..') {
+				continue;
+			}
+
+			if (!$this->delete_directory($dir . DIRECTORY_SEPARATOR . $item)) {
+				return false;
+			}
+		}
+
+		return rmdir($dir);
 	}
 }

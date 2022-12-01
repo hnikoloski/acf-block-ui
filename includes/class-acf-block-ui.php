@@ -155,6 +155,8 @@ class Acf_Block_Ui
 		$this->loader->add_action('init', $plugin_admin, 'create_acf_blocks_post_type');
 		$this->loader->add_action('init', $plugin_admin, 'import_acf_fields');
 		$this->loader->add_action('init', $plugin_admin, 'create_acf_block');
+		//when the post acf_blocks is deleted, delete the block
+		$this->loader->add_action('before_delete_post', $plugin_admin, 'delete_acf_block');
 	}
 
 	/**

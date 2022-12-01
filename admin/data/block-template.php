@@ -20,4 +20,7 @@ if (!empty($block['align'])) {
 ?>
 
 <div class="{{block_slug}} <?php echo esc_attr($classes); ?>">
+    <p>
+        This is a {{block_name}} block. You can find the template in <code>wp-content/acf-ui-blocks</code>.
+    </p>
 </div>
